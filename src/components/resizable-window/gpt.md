@@ -11,6 +11,24 @@ const ResizableWindowHeader = ({ width, height, fillColor }) => {
 ```
 
 ```jsx
+const ResizableEdge = ({ onDrag }) => {
+  const onMouseDown = (event) => {
+    event.stopPropagation();
+    onDrag(event);
+  };
+
+  return (
+    <div
+      className="right-0 bottom-0 w-4 h-4 cursor-se-resize flex items-center justify-center"
+      onMouseDown={onMouseDown}
+    >
+      <div className="w-[3px] h-[3px] rounded-full bg-slate-500 backdrop-blur-md hover:bg-red-500"></div>
+    </div>
+  );
+};
+```
+
+```jsx
 const ResizableWindowContents = ({ width, height }) => {
   return (
     <div
@@ -35,9 +53,9 @@ const ResizableWindow = ({ initialWidth, initialHeight, fillColor }) => {
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [resizing, setResizing] = useState(false);
   const [left, setLeft] = useState(0);
   const [top, setTop] = useState(0);
-  const [resizing, setResizing] = useState(false);
 
   const onMouseDown = (event) => {
     setDragging(true);
@@ -53,13 +71,27 @@ const ResizableWindow = ({ initialWidth, initialHeight, fillColor }) => {
   };
 
   const onMouseMove = (event) => {
-    if (!dragging) return;
-    const dx = event.clientX - x;
-    const dy = event.clientY - y;
-    setLeft(Math.max(0, Math.min(window.innerWidth - width, left + dx)));
-    setTop(Math.max(0, Math.min(window.innerHeight - height, top + dy)));
-    setX(event.clientX);
-    setY(event.clientY);
+    if (!dragging && !resizing) {
+      return;
+    }
+
+    if (dragging) {
+      const dx = event.clientX - x;
+      const dy = event.clientY - y;
+      setX(event.clientX);
+      setY(event.clientY);
+      setTop(Math.max(0, Math.min(window.innerHeight - height, top + dy)));
+      setLeft(Math.max(0, Math.min(window.innerWidth - width, left + dx)));
+    } else if (resizing) {
+      const dx = event.clientX - x;
+      const dy = event.clientY - y;
+      setX(event.clientX);
+      setY(event.clientY);
+      setWidth(Math.max(100, width + dx));
+      setHeight(Math.max(100, height + dy));
+    } else {
+      return;
+    }
   };
 
   const onMouseUp = () => {
@@ -146,4 +178,4 @@ Add a "maximize" button to the window. When this button is clicked, change the s
 
 Add a "fit to content" button to the window. When this button is clicked, resize the window so it's just large enough to fit its content, but not any larger. You will need to determine the size of the content, which may involve calculating the size of child elements or using React Refs to measure the rendered size of the content.
 
-Can you give me step 2?
+MY QUESTION: can you see why I am unable to resize the window?

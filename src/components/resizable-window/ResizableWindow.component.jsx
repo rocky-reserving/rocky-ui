@@ -15,9 +15,13 @@ const ResizableWindow = ({ initialWidth, initialHeight, fillColor }) => {
   const [top, setTop] = useState(0);
 
   const onMouseDown = (event) => {
-    setDragging(true);
-    setX(event.clientX);
-    setY(event.clientY);
+    if (event.target.classList.contains('resizable-edge')) {
+      onEdgeDrag(event);
+    } else {
+      setDragging(true);
+      setX(event.clientX);
+      setY(event.clientY);
+    }
   };
 
   const onEdgeDrag = (event) => {
@@ -53,6 +57,7 @@ const ResizableWindow = ({ initialWidth, initialHeight, fillColor }) => {
 
   const onMouseUp = () => {
     setDragging(false);
+    setResizing(false);
   };
 
   useEffect(() => {
